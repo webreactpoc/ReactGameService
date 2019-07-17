@@ -1,5 +1,6 @@
 {
     "python.linting.pylintEnabled": true,
     "python.linting.enabled": true,
-    "python.linting.banditEnabled": false
+    "python.linting.banditEnabled": false,
+    "python.pythonPath": "C:\\Users\\mdufr_000\\Anaconda3\\envs\\react_poc\\python.exe"
 }
