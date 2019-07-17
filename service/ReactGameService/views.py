@@ -1,8 +1,10 @@
 from django.shortcuts import render, get_object_or_404
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseServerError, HttpResponse
 from .models import *
 from django.core import serializers
 import json 
+
+from django.views.decorators.csrf import csrf_exempt # TODO REMOVE THIS
 
 ## TODO IMPLEMENT WITH CLASS BASED VIEWS
 ## TODO check for POST/GET etc
@@ -34,25 +36,26 @@ def GET_attempt(request,id=-1):
 
 ##### POST
 ## TODO CHECK FOR UPDATE/CREATE
+
+@csrf_exempt#TODO REMOVE THIS AND SECURE ENDPOINT
 def POST_test(request):
-    serializedData = modelToJson(Test.objects.all(),"Tests")
-    return JsonResponse(serializedData)
+    return singularPostRequest(request,Test)
 
+@csrf_exempt#TODO REMOVE THIS AND SECURE ENDPOINT
 def POST_testee(request):
-    serializedData = modelToJson(Testee.objects.all(),"Testees")
-    return JsonResponse(serializedData)
-    
-def POST_status(request):
-    serializedData = modelToJson(Status.objects.all(),"Statuss")
-    return JsonResponse(serializedData)
+    return singularPostRequest(request,Attempt)
 
+@csrf_exempt#TODO REMOVE THIS AND SECURE ENDPOINT
+def POST_status(request):
+    return singularPostRequest(request,Attempt)
+
+@csrf_exempt#TODO REMOVE THIS AND SECURE ENDPOINT
 def POST_organisation(request):
-    serializedData = modelToJson(Organisation.objects.all(),"Organisations")
-    return JsonResponse(serializedData)
+    return singularPostRequest(request,Attempt)
     
+@csrf_exempt#TODO REMOVE THIS AND SECURE ENDPOINT
 def POST_attempt(request):
-    serializedData = modelToJson(Attempt.objects.all(),"Attempts")
-    return JsonResponse(serializedData)
+    return singularPostRequest(request,Attempt)
 
 #####
 
@@ -67,3 +70,17 @@ def objectByIdOrAll(id,model,modelName):
         return modelToJson(model.objects.all(),modelName)
     else:
         return modelToJson(object,modelName)
+
+def singularPostRequest(request,model):
+    if request.method == "POST":
+        json_data = json.loads(request.body)
+    try:
+        for i in json_data:
+            model.createObject(0)
+        data = json_data[0]
+        print(data)
+    except KeyError:
+        return HttpResponseServerError("Malformed json body")
+    return HttpResponse("Ok")
+        # for deserialized_object in serializers.deserialize("json", request.body):
+        #      deserialized_object.save()
