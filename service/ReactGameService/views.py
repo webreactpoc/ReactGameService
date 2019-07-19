@@ -7,7 +7,6 @@ import json
 from django.views.decorators.csrf import csrf_exempt # TODO REMOVE THIS
 
 ## TODO IMPLEMENT WITH CLASS BASED VIEWS
-## TODO check for POST/GET etc
 
 def index(request):
     return JsonResponse({'Hello':'World'})
@@ -16,53 +15,35 @@ def index(request):
 
 def GET_test(request,id=-1):
     serializedData = objectByIdOrAll(id,Test,"Test")
-    return JsonResponse(serializedData)
+    return JsonResponse(serializedData,safe=False)
 
 def GET_testee(request,id=-1):
     serializedData = objectByIdOrAll(id,Testee,"Testee")
-    return JsonResponse(serializedData)
+    return JsonResponse(serializedData,safe=False)
     
 def GET_status(request,id=-1):
     serializedData = objectByIdOrAll(id,Status,"Status")
-    return JsonResponse(serializedData)
+    return JsonResponse(serializedData,safe=False)
 
 def GET_organisation(request,id=-1):
     serializedData = objectByIdOrAll(id,Organisation,"Organisation")
-    return JsonResponse(serializedData)
+    return JsonResponse(serializedData,safe=False)
     
 def GET_attempt(request,id=-1):
     serializedData = objectByIdOrAll(id,Attempt,"Attempt")
-    return JsonResponse(serializedData)
+    return JsonResponse(serializedData,safe=False)
 
 ##### POST
-## TODO CHECK FOR UPDATE/CREATE
 
 @csrf_exempt#TODO REMOVE THIS AND SECURE ENDPOINT
-def POST_test(request):
-    return singularPostRequest(request,Test)
-
-@csrf_exempt#TODO REMOVE THIS AND SECURE ENDPOINT
-def POST_testee(request):
-    return singularPostRequest(request,Attempt)
-
-@csrf_exempt#TODO REMOVE THIS AND SECURE ENDPOINT
-def POST_status(request):
-    return singularPostRequest(request,Attempt)
-
-@csrf_exempt#TODO REMOVE THIS AND SECURE ENDPOINT
-def POST_organisation(request):
-    return singularPostRequest(request,Attempt)
-    
-@csrf_exempt#TODO REMOVE THIS AND SECURE ENDPOINT
-def POST_attempt(request):
-    return singularPostRequest(request,Attempt)
+def POST_request(request):
+    return singularPostRequest(request)
 
 #####
 
 def modelToJson(modelObjects,modelName):
     serializedObjects = serializers.serialize("json", modelObjects)
-    data = {modelName: json.loads(serializedObjects)}
-    return data
+    return json.loads(serializedObjects)
 
 def objectByIdOrAll(id,model,modelName):
     object = model.objects.filter(pk=id)
@@ -71,16 +52,12 @@ def objectByIdOrAll(id,model,modelName):
     else:
         return modelToJson(object,modelName)
 
-def singularPostRequest(request,model):
+def singularPostRequest(request):
     if request.method == "POST":
-        json_data = json.loads(request.body)
-    try:
-        for i in json_data:
-            model.createObject(0)
-        data = json_data[0]
-        print(data)
-    except KeyError:
-        return HttpResponseServerError("Malformed json body")
-    return HttpResponse("Ok")
-        # for deserialized_object in serializers.deserialize("json", request.body):
-        #      deserialized_object.save()
+        for obj in serializers.deserialize("json",request):
+            obj.object.created_at=timezone.now();##TODO: unhardcode (already in model but deserializedObject.save() bypasses model-defined save()
+            obj.save()
+        return HttpResponse("Ok")
+    return HttpResponse("Pas Ok")
+
+

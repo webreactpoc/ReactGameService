@@ -20,9 +20,9 @@ urlpatterns = [
     path('get/attempt/<int:id>', views.GET_attempt, name='GET_ATTEMPT_BY_ID'),
 
     # POST NEW 
-    path('post/test/', views.POST_test, name='POST_NEW_TEST'),
-    path('post/testee/', views.POST_testee, name='POST_NEW_TESTEE'),
-    path('post/status/', views.POST_status, name='POST_NEW_STATUS'),
-    path('post/organisation/', views.POST_organisation, name='POST_NEW_ORGANISATION'),
-    path('post/attempt/', views.POST_attempt, name='POST_NEW_ATTEMPT'),
+    path('post/test/', views.POST_request, name='POST_NEW_TEST'),
+    path('post/testee/', views.POST_request, name='POST_NEW_TESTEE'),
+    path('post/status/', views.POST_request, name='POST_NEW_STATUS'),
+    path('post/organisation/', views.POST_request, name='POST_NEW_ORGANISATION'),
+    path('post/attempt/', views.POST_request, name='POST_NEW_ATTEMPT'),
 ]
